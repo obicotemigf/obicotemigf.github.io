@@ -1,5 +1,75 @@
-const elementosAno = document.querySelectorAll('.anoAtual');
-  const anoAtual = new Date().getFullYear();
-  elementosAno.forEach(elemento => {
-    elemento.textContent = anoAtual;
+const CURRENT_YEAR = new Date().getFullYear();
+const PROGRAMMING_LABEL = 'Modalidade Programação: ';
+const PHASE_LABELS = ['Prova da Fase 1', 'Prova da Fase 2', 'Prova da Fase 3'];
+const OBI_API_URL = 'https://felipevandevelde.github.io/api_obi/request.json';
+
+function preencherAnoAtual() {
+  const elementosAno = document.querySelectorAll('.anoAtual');
+
+  elementosAno.forEach((elemento) => {
+    elemento.textContent = CURRENT_YEAR;
   });
+}
+
+function formatarDatas(calendar, fase) {
+  const datas = calendar[fase];
+
+  if (!datas || datas.length === 0) {
+    return 'Não divulgada';
+  }
+
+  return datas.join(', ');
+}
+
+async function carregarDados() {
+  try {
+    const response = await fetch(OBI_API_URL, { cache: 'no-store' });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data || data.ano !== CURRENT_YEAR) {
+      return;
+    }
+
+    const eventosProgramacao = (data.eventos || []).filter((evento) =>
+      evento.descricao && evento.descricao.includes(PROGRAMMING_LABEL),
+    );
+
+    const calendar = {
+      'Prova da Fase 1': [],
+      'Prova da Fase 2': [],
+      'Prova da Fase 3': [],
+    };
+
+    eventosProgramacao.forEach((evento) => {
+      const descricaoLimpa = evento.descricao
+        .replace(PROGRAMMING_LABEL, '')
+        .trim();
+
+      if (Object.prototype.hasOwnProperty.call(calendar, descricaoLimpa)) {
+        calendar[descricaoLimpa].push(`${evento.dia}/${evento.mes}`);
+      }
+    });
+
+    PHASE_LABELS.forEach((fase) => {
+      const elementoFase = document.getElementById(fase);
+
+      if (!elementoFase) {
+        return;
+      }
+
+      elementoFase.textContent = formatarDatas(calendar, fase);
+    });
+  } catch (error) {
+    console.error('Erro ao buscar dados da OBI:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  preencherAnoAtual();
+  carregarDados();
+});
