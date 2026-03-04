@@ -165,7 +165,7 @@ body::after {
   filter: drop-shadow(0 0 12px var(--accent));
 }
 
-.logo-cotemig {
+.logocotemig {
   max-width: 180px;
   width: 70%;
   height: auto;
@@ -175,7 +175,7 @@ body::after {
   filter: drop-shadow(0 0 8px var(--color-shadow-logo));
 }
 
-.logo-cotemig:hover {
+.logocotemig:hover {
   transform: scale(1.05);
   filter: drop-shadow(0 0 12px var(--secondary));
 }
