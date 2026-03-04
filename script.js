@@ -11,6 +11,29 @@ function preencherAnoAtual() {
   });
 }
 
+async function verificarLogoOBI() {
+  try {
+    const response = await fetch(`./sources/logo-obi${CURRENT_YEAR}.svg`, {
+      method: 'HEAD',
+      cache: 'no-store',
+    });
+    
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+function preencherLogoOBI() {
+  const elemento = document.getElementById('obi_logo');
+  elemento.src = `./sources/logo-obi${CURRENT_YEAR}.svg`;
+}
+
+function exibirLogoOBI() {
+  const elemento = document.getElementById('obi_link');
+  elemento.style = "obi_link";
+}
+
 function formatarDatas(calendar, fase) {
   const datas = calendar[fase];
 
@@ -69,7 +92,15 @@ async function carregarDados() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   preencherAnoAtual();
   carregarDados();
+
+  const logoExiste = await verificarLogoOBI();
+  console.log(logoExiste);
+
+  if (logoExiste) {
+    exibirLogoOBI()
+    preencherLogoOBI();
+  }
 });
