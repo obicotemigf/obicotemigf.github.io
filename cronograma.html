@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cronograma - COTEMIG na OBI</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+
+  <style>
+    .nav-btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 11px 22px;
+      border-radius: 10px;
+      border: 2px solid var(--primary);
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .nav-btn-back:hover {
+      background: var(--primary);
+      color: var(--accent);
+      transform: translateX(-3px);
+    }
+
+    .month-block {
+      margin-bottom: 40px;
+    }
+    .month-header-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .month-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--tech-gradient);
+      border-radius: 8px;
+      padding: 6px 14px;
+      white-space: nowrap;
+      border: 2px solid var(--accent);
+    }
+    .month-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+    }
+    .month-subtitle-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .phase-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 0 0 28px;
+    }
+    .phase-divider-line {
+      flex: 1;
+      height: 2px;
+      background: #ccc;
+    }
+    .phase-divider-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 4px;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+    .phase-prep .phase-divider-label  { color: var(--secondary); border: 2px solid var(--secondary); background: #e8f5e9; }
+    .phase-proof .phase-divider-label { color: #c0392b; border: 2px solid #c0392b; background: #fdecea; }
+
+    .weeks-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 12px;
+    }
+    @media (max-width: 900px) {
+      .weeks-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .week-card {
+      background: var(--white);
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: var(--shadow-light);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .week-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,51,102,0.10);
+    }
+    .week-card.is-prova {
+      background: #fff5f5;
+      border-color: #f5c6c6;
+    }
+
+    .week-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    .week-event {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.3;
+    }
+    .week-card.is-prova .week-event { color: #c0392b; }
+
+    .week-content-text {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .week-extras {
+      font-size: 11px;
+      font-style: italic;
+      color: #999;
+      line-height: 1.4;
+      border-top: 1px solid #eee;
+      padding-top: 8px;
+      margin-top: 2px;
+    }
+
+    .wbadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+      width: fit-content;
+      font-weight: 600;
+    }
+    .wbadge-encontro { background: #e8f5e9; color: var(--secondary); border: 1px solid #a5d6a7; }
+    .wbadge-desafio  { background: #FFFBEA; color: #b8860b;           border: 1px solid #FFD70066; }
+    .wbadge-simulado { background: #f3e8ff; color: #7c3aed;           border: 1px solid #c4b5fd; }
+    .wbadge-prova    { background: #fdecea; color: #c0392b;           border: 1px solid #f5c6c6; }
+    .wbadge-plan     { background: #e8f0fe; color: #1a56db;           border: 1px solid #93c5fd; }
+    .wbadge-evento   { background: #e8f0fe; color: #1a56db;           border: 1px solid #93c5fd; }
+
+    .challenge-box {
+      background: var(--background-highlight);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 8px 10px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #555;
+    }
+    .challenge-box .ch-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .content-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ctag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--gray-light);
+      color: var(--primary);
+      border: 1px solid #d0d0d0;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .legend-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888;
+      margin-right: 4px;
+    }
+
+    .container { max-width: 1300px; }
+
+    @media (max-width: 700px) {
+      .phase-divider-line { display: none; }
+      .phase-divider { justify-content: flex-start; }
+      .phase-divider-label {
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        padding: 6px 12px;
+        white-space: normal;
+        line-height: 1.4;
+      }
+    }
+
+    .visao-geral-table th:nth-child(1),
+    .visao-geral-table td:nth-child(1) { width: 22%; }
+    .visao-geral-table th:nth-child(2),
+    .visao-geral-table td:nth-child(2) { width: 20%; }
+    .visao-geral-table th:nth-child(3),
+    .visao-geral-table td:nth-child(3) { width: 58%; }
+
+    @media (max-width: 900px) {
+      .weeks-grid { grid-template-columns: repeat(2, 1fr); }
+      .month-header-bar { flex-wrap: wrap; }
+    }
+    @media (max-width: 500px) {
+      .weeks-grid { grid-template-columns: 1fr; }
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--tech-gradient);
+      color: var(--white);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 13px 28px;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(23, 76, 42, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      letter-spacing: 0.3px;
+      border: 2px solid var(--accent);
+    }
+    .nav-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(23, 76, 42, 0.5);
+      color: var(--accent);
+    }
+    .nav-btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 13px 28px;
+      border-radius: 10px;
+      border: 2px solid var(--primary);
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+      letter-spacing: 0.3px;
+    }
+    .nav-btn-back:hover {
+      background: var(--primary);
+      color: var(--accent);
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo-container">
+      <a href="https://www.cotemig.com.br" target="_blank">
+        <img src="./sources/cotemig-logo.png" alt="Cotemig Logo" class="logo">
+      </a>
+      <a id="obi_link" style="display:none;" href="https://olimpiada.ic.unicamp.br" target="_blank">
+        <img id="obi_logo" src="./sources/" alt="OBI Logo" class="logo">
+      </a>
+    </div>
+
+    <div id="participant-page" class="page-content active">
+      <div class="page">
+
+        <div class="header">
+          <h1>🗓️ Cronograma do Grupo de Estudos</h1>
+          <div class="subtitle">OBI 2026 — Faculdade Cotemig</div>
+        </div>
+
+        <div style="text-align:center; margin: 0 0 36px;">
+          <a href="index.html" class="nav-btn">
+            Voltar ao guia do Competidor
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+
+        <div class="section">
+          <div class="content">
+            <div class="warning-box">
+              ⚠️ As datas das provas ainda não estão definidas. Por conta disso, o cronograma pode sofrer alterações.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2 class="section-title"><span class="emoji">📋</span> Visão Geral</h2>
+          <div class="content">
+            <div class="subsection">
+              <table class="schedule-table visao-geral-table">
+                <thead>
+                  <tr><th>Fase</th><th>Período</th><th>Foco</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Preparação</td><td>Março a Junho</td><td>Fundamentos, estruturas e simulados</td></tr>
+                  <tr><td>1ª Fase OBI</td><td>Julho</td><td>Revisão geral e prova local</td></tr>
+                  <tr><td>2ª Fase OBI</td><td>Agosto</td><td>Revisão avançada e prova estadual</td></tr>
+                  <tr><td>3ª Fase OBI</td><td>Setembro</td><td>Preparação intensiva e prova nacional</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="highlight-box">
+              📍 Local: Faculdade Cotemig &nbsp;·&nbsp; 2 encontros/mês &nbsp;·&nbsp; 1h cada encontro
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="phase-divider phase-prep">
+            <div class="phase-divider-line"></div>
+            <div class="phase-divider-label">⬡ Fase de Preparação — Março a Junho</div>
+            <div class="phase-divider-line"></div>
+          </div>
+
+          <div class="month-block">
+            <div class="month-header-bar">
+              <span class="month-num">03 · MAR</span>
+              <div>
+                <div class="month-title">Março</div>
+                <div class="month-subtitle-text">Divulgação · Inscrições · Apresentação</div>
+              </div>
+            </div>
+            <div class="weeks-grid">
+              <div class="week-card">
+                <div class="week-tag">— · Ação</div>
+                <div class="wbadge wbadge-plan">📋 Planejamento</div>
+                <div class="week-event">Divulgação do Grupo</div>
+                <div class="week-content-text">Sala de Aula · Canais de Comunicação do Cotemig · Portal do Aluno</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">— · Ação</div>
+                <div class="wbadge wbadge-plan">📋 Planejamento</div>
+                <div class="week-event">Inscrições Abertas</div>
+                <div class="week-content-text">Google Forms</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">— · Evento</div>
+                <div class="wbadge wbadge-evento">🟢 Evento</div>
+                <div class="week-event">Encontro de Apresentação</div>
+                <div class="week-content-text">Apresentação do grupo · Objetivos · Dinâmica dos encontros · Nivelamento da turma</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="month-block">
+            <div class="month-header-bar">
+              <span class="month-num">04 · ABR</span>
+              <div>
+                <div class="month-title">Abril</div>
+                <div class="month-subtitle-text">Fundamentos — Tipos, E/S, Condicionais</div>
+              </div>
+            </div>
+            <div class="weeks-grid">
+              <div class="week-card">
+                <div class="week-tag">1ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Tipos Primitivos · Entrada e Saída</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 1</div>Leitura e impressão de dados</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">2ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Prática Individual</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 2</div>Cálculo simples com tipos primitivos</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">3ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Operadores Relacionais e Lógicos · Condicionais</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 3</div>Problema de decisão simples</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">4ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Prática Individual</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 4</div>Problema misto — condicionais + E/S</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="month-block">
+            <div class="month-header-bar">
+              <span class="month-num">05 · MAI</span>
+              <div>
+                <div class="month-title">Maio</div>
+                <div class="month-subtitle-text">Estruturas — Laços, Arrays, Funções</div>
+              </div>
+            </div>
+            <div class="weeks-grid">
+              <div class="week-card">
+                <div class="week-tag">1ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Laços de Repetição</div>
+                <div class="content-tags"><span class="ctag">for</span><span class="ctag">while</span><span class="ctag">do-while</span></div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 1</div>Sequências e séries com laços</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">2ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Prática Individual</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 2</div>Repetição + condicionais combinados</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">3ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Arrays · Funções</div>
+                <div class="content-tags"><span class="ctag">vetores</span><span class="ctag">matrizes</span><span class="ctag">recursão</span></div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 3</div>Manipulação de vetores / matriz 2D</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">4ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Mini-Simulado + Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 4</div>Funções + arrays</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="month-block">
+            <div class="month-header-bar">
+              <span class="month-num">06 · JUN</span>
+              <div>
+                <div class="month-title">Junho</div>
+                <div class="month-subtitle-text">Fechamento — Strings, Estruturas Lineares</div>
+              </div>
+            </div>
+            <div class="weeks-grid">
+              <div class="week-card">
+                <div class="week-tag">1ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Strings</div>
+                <div class="content-tags"><span class="ctag">palíndromo</span><span class="ctag">anagrama</span><span class="ctag">métodos</span></div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 1</div>Palíndromo / Anagrama</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">2ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Prática Individual</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 2</div>Problema de string ou estrutura linear</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">3ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Pilha, Fila e Lista</div>
+                <div class="content-tags"><span class="ctag">stack</span><span class="ctag">queue</span><span class="ctag">list</span></div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 3</div>Torre de Hanói</div>
+                <div class="week-extras">Conteúdos extras a serem definidos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">4ª Semana</div>
+                <div class="wbadge wbadge-simulado">🏆 Simulado</div>
+                <div class="week-event">Simulado Geral — Fechamento de Conteúdo</div>
+                <div class="week-content-text">Todos os tópicos · Formato OBI · 90 minutos</div>
+                <div class="week-extras">Estratégia de prova · Gestão de tempo · Ordem de resolução · Dicas finais</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="phase-divider phase-proof">
+            <div class="phase-divider-line"></div>
+            <div class="phase-divider-label">⚡ Fase de Provas — Julho · Agosto · Setembro</div>
+            <div class="phase-divider-line"></div>
+          </div>
+
+          <div class="month-block">
+            <div class="month-header-bar">
+              <span class="month-num">07 · JUL</span>
+              <div>
+                <div class="month-title">Julho</div>
+                <div class="month-subtitle-text">1ª Fase OBI — Revisão Geral · Prova Local</div>
+              </div>
+            </div>
+            <div class="weeks-grid">
+              <div class="week-card">
+                <div class="week-tag">1ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Revisão Geral · Dúvidas Finais</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 1</div>A ser definido · Nível Iniciante/Intermediário · Questão OBI</div>
+                <div class="week-extras">Estratégia de prova · Uso de rascunho · Priorização na hora H</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">2ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Prática Focada</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 2</div>A ser definido · Nível Iniciante/Intermediário · Questão OBI</div>
+                <div class="week-extras">Revisão de pontos fracos identificados nos simulados</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">3ª Semana</div>
+                <div class="wbadge wbadge-simulado">🏆 Simulado</div>
+                <div class="week-event">Simulado 1ª Fase</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 3</div>A ser definido · Nível Iniciante/Intermediário · Questão OBI</div>
+                <div class="week-extras">Correção detalhada · Análise individual · Últimos ajustes</div>
+              </div>
+              <div class="week-card is-prova">
+                <div class="week-tag">4ª Semana</div>
+                <div class="wbadge wbadge-prova">🎯 Prova</div>
+                <div class="week-event">⚠️ 1ª FASE OBI</div>
+                <div class="week-content-text">Boa sorte! 🎯<br><br>Após a prova: anotar os problemas que geraram dúvida para análise posterior.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="month-block">
+            <div class="month-header-bar">
+              <span class="month-num">08 · AGO</span>
+              <div>
+                <div class="month-title">Agosto</div>
+                <div class="month-subtitle-text">2ª Fase OBI — Revisão Avançada · Prova Estadual</div>
+              </div>
+            </div>
+            <div class="weeks-grid">
+              <div class="week-card">
+                <div class="week-tag">1ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Análise da 1ª Fase</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 1</div>A ser definido · Nível Intermediário/Avançado · Questão OBI</div>
+                <div class="week-extras">Correção da 1ª Fase · Debate de soluções · Padrões de erro</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">2ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Prática Focada</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 2</div>A ser definido · Nível Intermediário/Avançado · Questão OBI</div>
+                <div class="week-extras">Análise de desempenho individual · Sugestão de melhorias</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">3ª Semana</div>
+                <div class="wbadge wbadge-simulado">🏆 Simulado</div>
+                <div class="week-event">Simulado 2ª Fase</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 3</div>A ser definido · Nível Intermediário/Avançado · Questão OBI</div>
+                <div class="week-extras">Estratégia para problemas difíceis · Gestão de tempo em provas mais longas</div>
+              </div>
+              <div class="week-card is-prova">
+                <div class="week-tag">4ª Semana</div>
+                <div class="wbadge wbadge-prova">🎯 Prova</div>
+                <div class="week-event">⚠️ 2ª FASE OBI</div>
+                <div class="week-content-text">Boa sorte! 🎯<br><br>Após a prova: registrar soluções e dificuldades encontradas.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="month-block">
+            <div class="month-header-bar">
+              <span class="month-num">09 · SET</span>
+              <div>
+                <div class="month-title">Setembro</div>
+                <div class="month-subtitle-text">3ª Fase OBI — Preparação Intensiva · Prova Nacional</div>
+              </div>
+            </div>
+            <div class="weeks-grid">
+              <div class="week-card">
+                <div class="week-tag">1ª Semana</div>
+                <div class="wbadge wbadge-encontro">🟢 Encontro</div>
+                <div class="week-event">Análise da 2ª Fase</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 1</div>A ser definido · Nível Avançado · Questão OBI</div>
+                <div class="week-extras">Padrões de problemas da 3ª Fase · Técnicas de otimização</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">2ª Semana</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="week-event">Prática Focada</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 2</div>A ser definido · Nível Avançado · Questão OBI</div>
+                <div class="week-extras">Análise de desempenho individual · Foco nos pontos críticos</div>
+              </div>
+              <div class="week-card">
+                <div class="week-tag">3ª Semana Final</div>
+                <div class="wbadge wbadge-simulado">🏆 Simulado</div>
+                <div class="week-event">Simulado 3ª Fase</div>
+                <div class="wbadge wbadge-desafio">📝 Desafio</div>
+                <div class="challenge-box"><div class="ch-label">Desafio 3</div>A ser definido · Nível Avançado · Questão OBI</div>
+                <div class="week-extras">Estratégia final · Gestão de pressão · Revisão de todos os padrões</div>
+              </div>
+              <div class="week-card is-prova">
+                <div class="week-tag">4ª Semana</div>
+                <div class="wbadge wbadge-prova">🎯 Prova</div>
+                <div class="week-event">⚠️ 3ª FASE OBI</div>
+                <div class="week-content-text">Boa sorte! 🚀🏆<br><br>Encerramento do ciclo do grupo de estudos.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="success-box">
+            <b>Parabéns</b> a todos os participantes que chegarem até aqui! Independentemente do resultado nas provas, o aprendizado e a dedicação ao longo do grupo de estudos já é uma grande conquista.
+          </div>
+        </div>
+
+        <div class="section">
+          <h2 class="section-title"><span class="emoji">📖</span> Legenda</h2>
+          <div class="content">
+            <div class="legend-row">
+              <span class="legend-label">Tipo</span>
+              <span class="wbadge wbadge-encontro">🟢 Encontro</span>
+              <span class="wbadge wbadge-desafio">📝 Desafio</span>
+              <span class="wbadge wbadge-simulado">🏆 Simulado</span>
+              <span class="wbadge wbadge-prova">🎯 Prova</span>
+              <span class="wbadge wbadge-plan">📋 Planejamento</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          © <span class="anoAtual"></span> <a href="https://www.linkedin.com/in/felipe-vandevelde/" target="_blank"><u>FelipeVandevelde</u></a> | <a href="https://www.linkedin.com/in/pezeq/" target="_blank"><u>pezeq</u></a> - Todos os direitos reservados</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <a href="https://discord.gg/RNStZCxKVA" target="_blank" class="discord-float">
+    <div class="discord-tooltip">Junte-se ao Discord</div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+      <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"></path>
+    </svg>
+  </a>
+</body>
+</html>
