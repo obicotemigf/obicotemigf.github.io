@@ -8,6 +8,51 @@
   <title>COTEMIG na OBI</title>
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
+  <style>
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--tech-gradient);
+      color: var(--white);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 13px 28px;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(23, 76, 42, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      letter-spacing: 0.3px;
+      border: 2px solid var(--accent);
+    }
+    .nav-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(23, 76, 42, 0.5);
+      color: var(--accent);
+    }
+    .nav-btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 13px 28px;
+      border-radius: 10px;
+      border: 2px solid var(--primary);
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+      letter-spacing: 0.3px;
+    }
+    .nav-btn-back:hover {
+      background: var(--primary);
+      color: var(--accent);
+      transform: translateY(-3px);
+    }
+  </style>
 </head>
 
 <body>
@@ -151,36 +196,12 @@
           <div class="content">
             <div class="subsection">
               <h3 class="subsection-title">Modalidade de Programação</h3>
-              <table class="schedule-table">
-                <thead>
-                  <tr>
-                    <th>Fases</th>
-                    <th colspan="2">Datas</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Fase0 (Prova Teste)</td>
-                    <td>Não divulgada</td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td>Fase1 (Prova Local)</td>
-                    <td id="Prova da Fase 1">Não divulgada</td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td>Fase2 (Prova Estadual)</td>
-                    <td id="Prova da Fase 2">Não divulgada</td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td>Fase3 (Prova Nacional)</td>
-                    <td id="Prova da Fase 3">Não divulgada</td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
+              <div style="text-align:center; margin: 24px 0 8px;">
+                <a href="cronograma.html" class="nav-btn">
+                  🗓️ Ver Cronograma do Grupo de Estudos
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -358,7 +379,7 @@
         </div>
 
         <div class="footer">
-          <a href="https://www.linkedin.com/in/felipe-vandevelde/">© <span class="anoAtual"></span> <u>FelipeVandevelde</u> - Todos os direitos reservados</a>
+          © <span class="anoAtual"></span> <a href="https://www.linkedin.com/in/felipe-vandevelde/" target="_blank"><u>FelipeVandevelde</u></a> | <a href="https://www.linkedin.com/in/pezeq/" target="_blank"><u>pezeq</u></a> - Todos os direitos reservados</a>
         </div>
       </div>
     </div>
